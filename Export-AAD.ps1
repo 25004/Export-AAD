@@ -116,7 +116,7 @@ $Script:ObjectParameters = @{
             "RegisteredUsers"  = @{"URI" = "/devices/<Id>/registeredUsers?`$select=id,userPrincipalName"}
             "MemberOf" = @{"URI" = "/devices/<Id>/memberOf?`$select=id,displayName,mail"}
         }
-        "LAWProperties" = @{ "DCE" = "https://sentinel-law-dce-xynb.eastus-1.ingest.monitor.azure.com/"
+        "LAWProperties" = @{ "DCE" = ""
                              "DCR" = ""
                              "Table" = "AADDevices"
         }
@@ -216,8 +216,8 @@ $Script:ObjectParameters = @{
             "MemberOf" = @{"URI" = "/users/<Id>/memberOf?`$select=id,displayName,mail"}
             "OwnedDevices" = @{"URI" = "/users/<Id>/ownedDevices?`$select=id,displayName,deviceId,profileType"}
         }
-        "LAWProperties" = @{ "DCE" = "https://sentinel-law-dce-xynb.eastus-1.ingest.monitor.azure.com/"
-                             "DCR" = "dcr-1bff4b7114384b3cae1adcd4fcf08ae2"
+        "LAWProperties" = @{ "DCE" = ""
+                             "DCR" = ""
                              "Table" = "AADUsers"
         }
     }
