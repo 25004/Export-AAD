@@ -19,7 +19,7 @@ To get more specifics on what is exported and how to change it see Default Ident
 > There is incomplete error handling. You should test in your environment first.
 
 ## Overview
-Inventory information is invaluable for cybersecurity. Understanding the current state of your environment (and how it looked at a specific time) allows you to enrich detections and incident response investigations. For more on the potential Use Cases of this data, see the [blog post](#################).
+Inventory information is invaluable for cybersecurity. Understanding the current state of your environment (and how it looked at a specific time) allows you to enrich detections and incident response investigations. For more on the potential Use Cases of this data, see the [blog post](https://medium.com/@cybureauocracy/export-aad-identities-for-detections-incident-response-d3a147b06a8d).
 
 Even though this data is valuable for cybersecurity, Microsoft does not provide a great way to access it at scale. Microsoft offers ["Graph Data Connect"](https://learn.microsoft.com/en-us/graph/data-connect-datasets), but this is focused on M365 and does not return all the objects (no apps/SPs) or all fields of interest (auth methods, role memberhships, group memberships). For more, see the blog above.
 
