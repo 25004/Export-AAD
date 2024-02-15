@@ -27,6 +27,9 @@ param (
     [switch]
     $SaveToFile,
 
+    [switch]
+    $SendToLAW,
+
     [guid]
     [Parameter(Mandatory)]
     $AppID,
@@ -75,8 +78,8 @@ $Script:ObjectParameters = @{
         "EnrichmentProperties" = @{
             "Owners" = @{"URI" = "/applications/<Id>/owners?`$select=id,userPrincipalName"}
         }
-        "LAWProperties" = @{ "DCE" = "https://sentinel-law-dce-xynb.eastus-1.ingest.monitor.azure.com/"
-                             "DCR" = "dcr-413fc5c3cdf640a49cb6a0b21dd769ba"
+        "LAWProperties" = @{ "DCE" = ""
+                             "DCR" = ""
                              "Table" = "AADAppRegistrations"
         }
     }
@@ -148,7 +151,7 @@ $Script:ObjectParameters = @{
         "EnrichmentProperties" = @{
             "Owners" = @{"URI" = "/groups/<Id>/owners?`$select=id,userPrincipalName"}
         }
-        "LAWProperties" = @{ "DCE" = "https://sentinel-law-dce-xynb.eastus-1.ingest.monitor.azure.com/"
+        "LAWProperties" = @{ "DCE" = ""
                              "DCR" = ""
                              "Table" = "AADGroups"
         }
@@ -175,7 +178,7 @@ $Script:ObjectParameters = @{
             "AppRoleAssignments" = @{"URI" = "/servicePrincipals/<Id>/appRoleAssignments?`$select=appRoleId,createdDateTime,resourceDisplayName,resourceId"}
             "MemberOf" = @{"URI" = "/servicePrincipals/<Id>/memberOf?`$select=id,displayName,mail"}
         }
-        "LAWProperties" = @{ "DCE" = "https://sentinel-law-dce-xynb.eastus-1.ingest.monitor.azure.com/"
+        "LAWProperties" = @{ "DCE" = ""
                              "DCR" = ""
                              "Table" = "AADServicePrincipals"
 
@@ -388,13 +391,71 @@ function Export-AADObject {
     return $FieldSelectedResponses
 }
 
+function Get-AADToken { #Only used for Sentinel ingestion.
+
+    $p = @{ TenantId = $Script:TenantId
+            ApplicationId = $Script:AppID
+            CertificateThumbprint = $Script:CertificateThumbprint
+    }
+    Connect-AzAccount @p | Out-Null
+
+    $p = @{ TenantId = $Script:TenantId
+            ResourceUrl = "https://monitor.azure.com"
+    }
+    $AuthToken = (Get-AzAccessToken @p).Token
+
+    return $AuthToken
+}
+
+function Send-LAWIngestionRequest {
+    param (
+        [string]
+        $AADObjType,
+
+        [pscustomobject[]]
+        $Entries
+    )
+                    
+    $Token = Get-AADToken
+    $Headers = @{"Authorization" = "Bearer $Token"; "Content-Type" = "application/json" };
+
+    $URL = $Script:ObjectParameters[$AADObjType]["LAWProperties"]["DCE"] + "dataCollectionRules/" +
+           $Script:ObjectParameters[$AADObjType]["LAWProperties"]["DCR"] + "/streams/Custom-" +
+           $Script:ObjectParameters[$AADObjType]["LAWProperties"]["Table"] +  "_CL?api-version=2023-01-01"
+
+    
+    #Log Ingestion API has a limit of 1MB/call....so 100 records per POST is probably under 1MB?
+    $ChunkSize = 100
+    For ($i = 0; $i -lt $Entries.Length; $i += $ChunkSize) {
+
+        $HTTPBody = $Entries[$i..($i+$ChunkSize)] | ConvertTo-Json -Depth 20
+
+        $HTTPParameters = @{"Headers" = $Headers
+                            "Method" = "POST"
+                            "Uri" = $URL
+                            "Body" = $HTTPBody
+        }
+
+        $Response = Invoke-WebRequest @HTTPParameters
+
+        Write-Output (Get-Date -Format "s") "Response Code: $($Response.StatusCode)"
+    }
+}
+
+
+if (!$SendToLAW -and !$SaveToFile) {
+    Write-Error "You must select SaveToFile or SendToLaw (or both)"
+    Exit
+}
+
 ForEach ($ObjectType in $AADObject) {
     $Entries = Export-AADObject -AADObjType $ObjectType
 
     if ($SaveToFile) {
         $Entries | ConvertTo-Json -Depth 20 | Out-File -FilePath "$PSScriptRoot\$ObjectType.json"
     }
-    else{
-        return $Entries
+    
+    if ($SendToLAW){
+        Send-LAWIngestionRequest -AADObjType $ObjectType -Entries $Entries
     }
 }

@@ -11,8 +11,9 @@ Support for:
     - Users
 - The ability to change what properties are exported for each object.
 - Batching and parallelism to make Graph queries go faster
+- Option for Sentinel ingestion.
 
-To get more specifics on what is exported and how to change it see Identiy Details.
+To get more specifics on what is exported and how to change it see Default Identity Object Properties.
 
 > [!WARNING]
 > There is incomplete error handling. You should test in your environment first.
