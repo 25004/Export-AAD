@@ -14,7 +14,7 @@ Support for:
 
 To get more specifics on what is exported and how to change it see Identiy Details.
 
-> [!CAUTION]
+> [!WARNING]
 > There is incomplete error handling. You should test in your environment first.
 
 ## Overview
@@ -40,18 +40,21 @@ This script is meant to be run on a schedule (twice a day, daily, etc) in a SOAR
 - Directory.Read.All
 - UserAuthenticationMethod.Read.All (for viewing user auth)
 
-For directions on how to grant an application Graph API permissions read [Get access without a user](https://learn.microsoft.com/en-us/graph/auth-v2-service?tabs=http). Only certificate-based application authentication is supported, because it is meant to be automated.
+For directions on how to grant an application Graph API permissions read [Get access without a user](https://learn.microsoft.com/en-us/graph/auth-v2-service?tabs=http). Only certificate-based application authentication is supported. But you can edit the script to support passwords if you want.
 
 ## Example Commands
 Export all object types and save to a folder.
 ```PowerShell
-.\Export-AAD.ps1 -AppID "appidhere" -CertificateThumbprint "certthumbprinthere" -TenantId "tenantidhere"
+.\Export-AAD.ps1 -AppID "appidhere" -CertificateThumbprint "certthumbprinthere" -TenantId "tenantidhere" -SaveToFile
 ```
 
 Export only the provided object types
 ```PowerShell
-.\Export-AAD.ps1 -AppID "appidhere" -CertificateThumbprint "certthumbprinthere" -TenantId "tenantidhere" -AADObjects "Users", "Devices"
+.\Export-AAD.ps1 -AppID "appidhere" -CertificateThumbprint "certthumbprinthere" -TenantId "tenantidhere" -SaveToFile -AADObjects "Users", "Devices"
 ```
+
+> [!TIP]
+> The User AuthenticationMethods property is often throttled. It might be limited to ~100 users/minute. Remove it if you want to go faster. 
 
 ## Edit Returned Identity Properties
 The returned properties and enrichments are in ```$Script:ObjectParameters``` near the top of the script.

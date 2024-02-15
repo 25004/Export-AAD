@@ -1,10 +1,31 @@
+<#
+.SYNOPSIS
+
+Export-AAD
+
+.DESCRIPTION
+
+Export identity object information from Azure Active Directory and save it to JSON files. 
+
+.INPUTS
+
+.OUTPUTS
+
+PSObjects, or JSON files.
+
+.NOTES
+
+    Author : Ethan Bowen @25004
+    Version : 0.1
+
+#>
 param (
     [string[]]
     [ValidateSet("AppRegistrations", "Devices", "Groups", "ServicePrincipals", "Users")]
-    $AADObjects = @("AppRegistrations", "Devices", "Groups", "ServicePrincipals", "Users"),
+    $AADObject = @("AppRegistrations", "Devices", "Groups", "ServicePrincipals", "Users"),
 
-    [bool]
-    $SaveToFile = $True,
+    [switch]
+    $SaveToFile,
 
     [guid]
     [Parameter(Mandatory)]
@@ -188,7 +209,7 @@ $Script:ObjectParameters = @{
             "UserType"
             )
         "EnrichmentProperties" = @{
-            "AuthenticationMethods" = @{"URI" = "/users/<Id>/authentication/methods"} #This is an easily throttled property (in my testing).
+            "AuthenticationMethods" = @{"URI" = "/users/<Id>/authentication/methods"} #This is a highly throttled property (in my testing).
             "MemberOf" = @{"URI" = "/users/<Id>/memberOf?`$select=id,displayName,mail"}
             "OwnedDevices" = @{"URI" = "/users/<Id>/ownedDevices?`$select=id,displayName,deviceId,profileType"}
         }
@@ -291,7 +312,8 @@ function Send-BatchGraphQuery {
                         }
 
                         else {
-                            #A different error happened. Overwrite whatever the return is.
+                            #A different error happened. Maybe the object was deleted between bulk request and now. Maybe Graph hates us..
+                            #Overwrite whatever the return is.
                             $TempResponses.TryAdd($PSItem.id,"GraphError") | Out-Null
 
                             #And give up.
@@ -304,7 +326,7 @@ function Send-BatchGraphQuery {
 
             ######TIMER STUFF###############
             $ParallelStopWatch.stop()
-            Write-Host "Got....$QueryType in: $ParallelStopWatch"
+            Write-Host "Got....$QueryType in: $ParallelStopWatch" -ForegroundColor "Blue"
             ######TIMER STUFF###############
 
             $CompleteHTTPResults.GetEnumerator() | ForEach-Object {
@@ -322,14 +344,16 @@ function Send-BatchGraphQuery {
     return $Results.Values
 }
 
-function Export-AADObjects {
+function Export-AADObject {
     param(
         [string]
         $AADObjType
     )
 
+    ###STOP WATCH####
     $InitialQueryWatch = [system.diagnostics.stopwatch]::StartNew()
-
+    ###STOP WATCH####
+    
     #Graph PowerShell handles the pagination for us. Yay
     $GraphParams = @{   "All" = $true
                         "PageSize" = 999
@@ -345,7 +369,10 @@ function Export-AADObjects {
         Default {}
     }
 
+    ###STOP WATCH####
     $InitialQueryWatch.Stop()
+    ###STOP WATCH####
+
     Write-Host "Got All $AADObjType in: $InitialQueryWatch" -ForegroundColor "Green"
 
     $EnrichedResponses = Send-BatchGraphQuery -Objects $Responses -EnrichmentAADObjType $AADObjType -TimeGenerated (Get-Date -AsUTC -Format "s")
@@ -361,10 +388,13 @@ function Export-AADObjects {
     return $FieldSelectedResponses
 }
 
-ForEach ($ObjectType in $AADObjects) {
-    $Entries = Export-AADObjects -AADObjType $ObjectType
+ForEach ($ObjectType in $AADObject) {
+    $Entries = Export-AADObject -AADObjType $ObjectType
 
     if ($SaveToFile) {
         $Entries | ConvertTo-Json -Depth 20 | Out-File -FilePath "$PSScriptRoot\$ObjectType.json"
+    }
+    else{
+        return $Entries
     }
 }
