@@ -35,6 +35,7 @@ This script is meant to be run on a schedule (twice a day, daily, etc) in a SOAR
 - Microsoft.Graph.Groups
 - Microsoft.Graph.Users
 - Microsoft.Graph.Identity.DirectoryManagement
+- Az.Accounts (only if sending to a LAW)
 
 ### Application Permissions:
 
@@ -114,6 +115,7 @@ I selected security relevant fields for each object type. If you want to add or 
     "Description",
     "IdentifierUris",
     "Info",
+    "KeyCredentials",
     "Notes",
     "Owners",
     "PublisherDomain",
@@ -194,6 +196,7 @@ I selected security relevant fields for each object type. If you want to add or 
     "CreatedDateTime",
     "DisplayName",
     "Info",
+    "KeyCredentials",
     "Owners",
     "MemberOf",
     "ServicePrincipalType",

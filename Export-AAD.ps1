@@ -54,7 +54,6 @@ $Script:TenantId = $TenantId
 
 Connect-MgGraph -NoWelcome -TenantId $Script:TenantId -ClientId $Script:AppID -CertificateThumbprint $Script:CertificateThumbprint
 
-
 $Script:ObjectParameters = @{
     "AppRegistrations" = @{ 
         "GraphProperties" = @(
@@ -68,6 +67,7 @@ $Script:ObjectParameters = @{
                 "Description",
                 "IdentifierUris",
                 "Info",
+                #"KeyCredentials",
                 "Notes",
                 "PublisherDomain",
                 "RequiredResourceAccess",
@@ -168,6 +168,7 @@ $Script:ObjectParameters = @{
             "CreatedDateTime",
             "DisplayName",
             "Info",
+            #"KeyCredentials",
             "ServicePrincipalType",
             "SignInAudience",
             #"Oauth2PermissionScopes",
