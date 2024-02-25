@@ -42,11 +42,12 @@ param (
     [Parameter(Mandatory)]
     $TenantId
 )
-#Requires -Modules @{"ModuleName"="Microsoft.Graph.Authentication"; "RequiredVersion"= "2.12.0"}
-#Requires -Modules @{"ModuleName"="Microsoft.Graph.Applications"; "RequiredVersion"= "2.12.0"}
-#Requires -Modules @{"ModuleName"="Microsoft.Graph.Groups"; "RequiredVersion"= "2.12.0"}
-#Requires -Modules @{"ModuleName"="Microsoft.Graph.Users"; "RequiredVersion"= "2.12.0"}
-#Requires -Modules @{"ModuleName"="Microsoft.Graph.Identity.DirectoryManagement"; "RequiredVersion"= "2.12.0"}
+#Requires -Version 7
+#Requires -Modules @{"ModuleName"="Microsoft.Graph.Authentication"; "ModuleVersion"= "2.12.0"}
+#Requires -Modules @{"ModuleName"="Microsoft.Graph.Applications"; "ModuleVersion"= "2.12.0"}
+#Requires -Modules @{"ModuleName"="Microsoft.Graph.Groups"; "ModuleVersion"= "2.12.0"}
+#Requires -Modules @{"ModuleName"="Microsoft.Graph.Users"; "ModuleVersion"= "2.12.0"}
+#Requires -Modules @{"ModuleName"="Microsoft.Graph.Identity.DirectoryManagement"; "ModuleVersion"= "2.12.0"}
 
 $Script:AppID = $AppID
 $Script:CertificateThumbprint = $CertificateThumbprint

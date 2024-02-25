@@ -30,6 +30,7 @@ This script is meant to be run on a schedule (twice a day, daily, etc) in a SOAR
 ## Requirements
 
 ### PowerShell Modules:
+- PowerShell version 7
 - Microsoft.Graph.Authentication
 - Microsoft.Graph.Applications
 - Microsoft.Graph.Groups
@@ -45,9 +46,9 @@ This script is meant to be run on a schedule (twice a day, daily, etc) in a SOAR
 For directions on how to grant an application Graph API permissions read [Get access without a user](https://learn.microsoft.com/en-us/graph/auth-v2-service?tabs=http). Only certificate-based application authentication is supported. But you can edit the script to support passwords if you want.
 
 ## Example Commands
-Export all object types and save to a folder.
+Export all object types, save to a folder, send to Sentinel/LAW.
 ```PowerShell
-.\Export-AAD.ps1 -AppID "appidhere" -CertificateThumbprint "certthumbprinthere" -TenantId "tenantidhere" -SaveToFile
+.\Export-AAD.ps1 -AppID "appidhere" -CertificateThumbprint "certthumbprinthere" -TenantId "tenantidhere" -SaveToFile -SendToLAW
 ```
 
 Export only the provided object types
